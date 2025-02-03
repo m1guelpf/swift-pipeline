@@ -1,5 +1,5 @@
-public class Pipeline<Value> {
-	public typealias PipeFn = (Value) throws -> Value
+public class AsyncPipeline<Value> {
+	public typealias PipeFn = (Value) async throws -> Value
 
 	/// The object being passed through the pipeline.
 	private var passable: Value
@@ -12,48 +12,48 @@ public class Pipeline<Value> {
 	}
 
 	/// Set the object being sent through the pipeline.
-	public static func send(_ passable: Value) -> Pipeline<Value> {
-		return Pipeline(passable)
+	public static func send(_ passable: Value) -> AsyncPipeline<Value> {
+		return AsyncPipeline(passable)
 	}
 
 	/// Set the array of pipes.
-	public func through(_ pipes: [PipeType<Value>]) -> Self {
+	public func through(_ pipes: [AsyncPipeType<Value>]) -> Self {
 		self.pipes = pipes.map { pipe in pipe.toFunction() }
 
 		return self
 	}
 
 	/// Push additional pipes onto the pipeline.
-	public func pipe(_ pipes: [PipeType<Value>]) -> Self {
+	public func pipe(_ pipes: [AsyncPipeType<Value>]) -> Self {
 		self.pipes.append(contentsOf: pipes.map { $0.toFunction() })
 
 		return self
 	}
 
 	/// Run the pipeline with a final destination callback.
-	public func then<Return>(_ callable: @escaping (Value) throws -> Return) throws -> Return {
-		passable = try pipes.reversed().reduce(passable) { passable, pipe in
-			try pipe(passable)
+	public func then<Return>(_ callable: @escaping (Value) async throws -> Return) async throws -> Return {
+		passable = try await pipes.reversed().asyncReduce(passable) { passable, pipe in
+			try await pipe(passable)
 		}
 
-		return try callable(passable)
+		return try await callable(passable)
 	}
 
 	/// Run the pipeline and return the result.
-	public func thenReturn() throws -> Value {
-		return try then { $0 }
+	public func thenReturn() async throws -> Value {
+		return try await then { $0 }
 	}
 
 	/// Run the pipeline.
-	public func run() throws {
-		_ = try thenReturn()
+	public func run() async throws {
+		_ = try await thenReturn()
 	}
 }
 
 // Convenience methods for `through`
-public extension Pipeline {
+public extension AsyncPipeline {
 	/// Set the array of pipes.
-	func through(_ pipes: [any Pipe<Value>]) -> Self {
+	func through(_ pipes: [any AsyncPipe<Value>]) -> Self {
 		return through(pipes.map { .pipe($0) })
 	}
 
@@ -63,12 +63,12 @@ public extension Pipeline {
 	}
 
 	/// Set the array of pipes.
-	func through(_ pipes: PipeType<Value>...) -> Self {
+	func through(_ pipes: AsyncPipeType<Value>...) -> Self {
 		return through(pipes)
 	}
 
 	/// Set the array of pipes.
-	func through(_ pipes: any Pipe<Value>...) -> Self {
+	func through(_ pipes: any AsyncPipe<Value>...) -> Self {
 		return through(pipes)
 	}
 
@@ -79,9 +79,9 @@ public extension Pipeline {
 }
 
 // Convenience methods for `pipe`
-public extension Pipeline {
+public extension AsyncPipeline {
 	/// Push additional pipes onto the pipeline.
-	func pipe(_ pipes: PipeType<Value>...) -> Self {
+	func pipe(_ pipes: AsyncPipeType<Value>...) -> Self {
 		return pipe(pipes)
 	}
 
@@ -91,7 +91,7 @@ public extension Pipeline {
 	}
 
 	/// Push additional pipes onto the pipeline.
-	func pipe(_ pipes: [any Pipe<Value>]) -> Self {
+	func pipe(_ pipes: [any AsyncPipe<Value>]) -> Self {
 		return pipe(pipes.map { .pipe($0) })
 	}
 
@@ -101,7 +101,7 @@ public extension Pipeline {
 	}
 
 	/// Push additional pipes onto the pipeline.
-	func pipe(_ pipes: any Pipe<Value>...) -> Self {
+	func pipe(_ pipes: any AsyncPipe<Value>...) -> Self {
 		return pipe(pipes)
 	}
 }
