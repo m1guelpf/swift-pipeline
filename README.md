@@ -9,7 +9,7 @@ A convenient way to "pipe" a given input through a series of invokable classes, 
 
 ### Swift Package Manager
 
-The Swift Package Manager allows for developers to easily integrate packages into their Xcode projects and packages; and is also fully integrated into the swift compiler.
+The Swift Package Manager allows for developers to easily integrate packages into their Xcode projects and packages and is also fully integrated into the swift compiler.
 
 ### SPM Through XCode Project
 
@@ -29,7 +29,7 @@ dependencies: [
 
 ## Usage
 
-To get started, create a new pipeline with the `send` method, passing the input you want to pipe through the pipeline. Then, use the `through` method to add a series of `Pipe`s (either classes implenting the `Pipe` protocol, or closures) to the pipeline. Finally, call the `then` method to transform and get the final output.
+To get started, create a new pipeline with the `send` method, passing the input you want to pipe through the pipeline. Then, use the `through` method to add a series of pipes (either classes implenting the `Pipe` protocol, or closures) to the pipeline. Finally, call the `then` method to transform and get the final output.
 
 You can also append `Pipe`s to an existing pipeline using the `pipe` method, or use `thenReturn` to get the final output without transforming it.
 
