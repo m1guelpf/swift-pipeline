@@ -75,6 +75,11 @@ public class Pipeline<Value> {
     public func thenReturn() throws -> Value {
         return try then { $0 }
     }
+
+    /// Run the pipeline.
+    public func run() throws {
+        _ = try thenReturn()
+    }
 }
 
 // Convenience methods for `through`

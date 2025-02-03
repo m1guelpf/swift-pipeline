@@ -29,23 +29,24 @@ dependencies: [
 
 ## Usage
 
-```swift
-import Pipeline;
-
-let user = try Pipeline.send(user).through({ user in
-        // ...
-
-        return user
-}, { user in
-        // ...
-
-        return user
-}).thenReturn()
-```
-
 To get started, create a new pipeline with the `send` method, passing the input you want to pipe through the pipeline. Then, use the `through` method to add a series of `Pipe`s (either classes implenting the `Pipe` protocol, or closures) to the pipeline. Finally, call the `then` method to transform and get the final output.
 
 You can also append `Pipe`s to an existing pipeline using the `pipe` method, or use `thenReturn` to get the final output without transforming it.
+
+```swift
+import Pipeline;
+
+try Pipeline.send(project).through(
+    .pipe(BuildProject(),
+    .pipe(UploadProject(),
+    .pipe(DeployProject()),
+    .fn { project in
+        // ...
+
+        return project
+    }
+))).run()
+```
 
 ## License
 
